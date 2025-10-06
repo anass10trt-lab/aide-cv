@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créateur de CV</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+        .form-section, .preview-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 300px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        label {
+            font-weight: bold;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .preview {
+            display: none;
+        }
+        .resume {
+            padding: 10px;
+            line-height: 1.6;
+        }
+        .resume h2 {
+            margin-top: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Générateur de CV en ligne</h1>
+<p>Remplis les champs ci-dessous pour créer ton CV. Tu peux ensuite l'imprimer ou le télécharger en PDF.</p>
+
+<div class="container">
+    <div class="form-section">
+        <label>Nom complet *</label>
+        <input type="text" id="name" placeholder="Jean Dupont">
+
+        <label>Email *</label>
+        <input type="email" id="email" placeholder="jean@example.com">
+
+        <label>Téléphone</label>
+        <input type="text" id="phone" placeholder="06 00 00 00 00">
+
+        <label>Résumé professionnel</label>
+        <textarea id="summary" placeholder="Décris ton profil professionnel..."></textarea>
+
+        <label>Expérience professionnelle</label>
+        <textarea id="experience" placeholder="Par ex. Développeur chez XYZ, 2020-2023..."></textarea>
+
+        <label>Formation</label>
+        <textarea id="education" placeholder="Par ex. Licence Informatique - Université ABC - 2018"></textarea>
+
+        <label>Compétences (séparées par des virgules)</label>
+        <textarea id="skills" placeholder="HTML, CSS, JavaScript, Travail en équipe"></textarea>
+
+        <button onclick="generateCV()">Générer le CV</button>
+    </div>
+
+    <div class="preview-section">
+        <h2>Prévisualisation du CV</h2>
+        <div id="cvPreview" class="resume preview"></div>
+        <button onclick="printCV()">Imprimer</button>
+        <button onclick="downloadCV()">Télécharger en PDF</button>
+    </div>
+</div>
+
+<script>
+    function generateCV() {
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const summary = document.getElementById("summary").value.trim();
+        const experience = document.getElementById("experience").value.trim();
+        const education = document.getElementById("education").value.trim();
+        const skills = document.getElementById("skills").value.trim().split(',');
+
+        if (!name || !email) {
+            alert("Le nom et l'email sont obligatoires.");
+            return;
+        }
+
+        const cvHTML = `
+            <div>
+                <h1>${name}</h1>
+                <p><strong>Email :</strong> ${email} | <strong>Téléphone :</strong> ${phone}</p>
+
+                <h2>Résumé</h2>
+                <p>${summary || 'Non fourni.'}</p>
+
+                <h2>Expérience professionnelle</h2>
+                <p>${experience || 'Non fournie.'}</p>
+
+                <h2>Formation</h2>
+                <p>${education || 'Non fournie.'}</p>
+
+                <h2>Compétences</h2>
+                <ul>
+                    ${skills.map(skill => `<li>${skill.trim()}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+
+        const preview = document.getElementById("cvPreview");
+        preview.innerHTML = cvHTML;
+        preview.classList.add("preview");
+        preview.style.display = 'block';
+    }
+
+    function printCV() {
+        const content = document.getElementById("cvPreview").innerHTML;
+        const win = window.open('', '', 'height=700,width=900');
+        win.document.write('<html><head><title>Mon CV</title>');
+        win.document.write('</head><body>');
+        win.document.write(content);
+        win.document.write('</body></html>');
+        win.document.close();
+        win.print();
+    }
+
+    function downloadCV() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const cv = document.getElementById("cvPreview");
+
+        doc.html(cv, {
+            callback: function (doc) {
+                doc.save("Mon-CV.pdf");
+            },
+            x: 10,
+            y: 10,
+            width: 190
+        });
+    }
+</script>
+
+</body>
+</html>
